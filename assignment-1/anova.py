@@ -32,10 +32,26 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
 
+# Plot the variance across all features
+feature_variance = np.var(X_train_scaled, axis=1)
+plt.figure(figsize=(10, 5))
+plt.hist(feature_variance, bins=20)
+plt.title("Feature Variance Distribution")
+plt.xlabel("Variance")
+plt.ylabel("Count")
+plt.grid(True)
+plt.show()
+
 # Create a VarianceThreshold feature selector
-sel = VarianceThreshold()
+original_feature_count = X_train_scaled.shape[1]
+variance_threshold = 0.0
+sel = VarianceThreshold(threshold=variance_threshold)
 X_train_scaled = sel.fit_transform(X_train_scaled)
 X_test_scaled = sel.transform(X_test_scaled)
+
+# Print the number of removed features
+removed_features = original_feature_count - X_train_scaled.shape[1]
+print(f"Removed {removed_features} features with variance below {variance_threshold}")
 
 # Define classifiers
 classifiers = {
@@ -45,7 +61,9 @@ classifiers = {
 }
 
 # Number of features to evaluate
-max_features = min(100, X_train_scaled.shape[1])  # Limit max features to 100 or total features count
+max_features = min(
+    100, X_train_scaled.shape[1]
+)  # Limit max features to 100 or total features count
 feature_range = range(1, max_features + 1, 5)  # Evaluate every 5 features
 
 # Prepare to track best performance
@@ -78,10 +96,10 @@ for k in feature_range:
 # Plotting the performance
 ks, scores = zip(*performance_history)
 plt.figure(figsize=(10, 5))
-plt.plot(ks, scores, marker='o')
-plt.title('Model Accuracy by Number of Features')
-plt.xlabel('Number of Features')
-plt.ylabel('Cross-validated Accuracy')
+plt.plot(ks, scores, marker="o")
+plt.title("Model Accuracy by Number of Features")
+plt.xlabel("Number of Features")
+plt.ylabel("Cross-validated Accuracy")
 plt.grid(True)
 plt.show()
 
